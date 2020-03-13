@@ -5,6 +5,9 @@ buildscript {
 		maven { url "https://plugins.gradle.org/m2/" }
 		maven { url "http://repo.spring.io/plugins-release" }
 	}
+	dependencies {
+		classpath "jp.classmethod.aws:gradle-aws-plugin:0.41"
+	}
 }
 
 plugins {
@@ -24,6 +27,8 @@ apply from: "${rootProject.projectDir}/gradle/sourceArtifact.gradle"
 apply from: "${rootProject.projectDir}/gradle/bintray.gradle"
 
 group = 'jp.xet'
+ext.artifactId = "baseunits"
+version = rootProject.version
 
 // compiler
 sourceCompatibility = targetCompatibility = 1.8
@@ -80,4 +85,38 @@ jar {
 
 wrapper {
 	gradleVersion = "5.4.1"
+}
+
+// ======== deploy ========
+apply plugin: "jp.classmethod.aws"
+aws {
+	profileName = null
+}
+
+publishing {
+	repositories {
+		maven {
+			def releasesRepoUrl = "${System.getenv("PUBLISH_REPOSITORY")}/release"
+			def snapshotsRepoUrl = "${System.getenv("PUBLISH_REPOSITORY")}/snapshot"
+			url version.endsWith("SNAPSHOT") ? snapshotsRepoUrl : releasesRepoUrl
+
+			credentials(AwsCredentials) {
+				def profileName = project.hasProperty("awsProfileForMetropolisRepo") ? project.awsProfileForMetropolisRepo : null
+				def cred = aws.newCredentialsProvider(profileName).credentials
+				accessKey cred.getAWSAccessKeyId()
+				secretKey cred.getAWSSecretKey()
+			}
+		}
+	}
+
+	publications {
+		maven(MavenPublication) {
+			groupId project.group
+			artifactId project.artifactId
+			version project.version
+			from components.java
+			artifact sourcesJar
+			artifact javadocJar
+		}
+	}
 }
