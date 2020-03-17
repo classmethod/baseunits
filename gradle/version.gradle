@@ -12,12 +12,15 @@ buildscript {
 
 ext {
 	git = org.ajoberstar.grgit.Grgit.open(dir: file('.'))
-	describedCommit = git.describe(tags: true).toString().trim()
+	revision = git.head().abbreviatedId
 }
 
-version = describedCommit +
-	(describedCommit.matches(".*-[0-9]+-g[0-9a-f]{7}") ? "-SNAPSHOT" : "") +
-	(git.status().isClean() ? "" : "+dirty")
+version = LocalDateTime.now().format("yyyyMMdd") + "-" + revision +
+		(git.branch.current.name != "master" ? "-SNAPSHOT" : "") +
+		(git.status().isClean() ? "" : "+dirty")
+if (System.getenv('CIRCLE_TAG') != null) {
+	version = System.getenv('CIRCLE_TAG')
+}
 
 task showVersion {
 	doLast {
