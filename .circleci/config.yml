@@ -39,3 +39,12 @@ jobs:
           paths:
             - "~/.gradle"
             - "~/.m2"
+
+workflows:
+  version: 2
+  all:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /.*/

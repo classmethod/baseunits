@@ -18,6 +18,9 @@ ext {
 version = LocalDateTime.now().format("yyyyMMdd") + "-" + revision +
 		(git.branch.current.name != "master" ? "-SNAPSHOT" : "") +
 		(git.status().isClean() ? "" : "+dirty")
+if (System.getenv('CIRCLE_TAG') != null) {
+	version = System.getenv('CIRCLE_TAG')
+}
 
 task showVersion {
 	doLast {
