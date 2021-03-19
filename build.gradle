@@ -49,7 +49,7 @@ configurations {
 
 dependencies {
 	implementation "org.slf4j:slf4j-api"
-	implementation "com.google.guava:guava:28.0-jre"
+	implementation "com.google.guava:guava:30.1.1-jre"
 	compileOnly "javax.validation:validation-api:1.0.0.GA"
 	compileOnly "org.springframework:spring-context"
 
